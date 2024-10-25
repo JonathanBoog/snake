@@ -19,7 +19,7 @@ init(void){
     volatile int* button_adress1 = (volatile int*) 0x040000e0;
     //volatile int* button_adress2 = (volatile unsigned short*);
 
-    *button_adress1 = 0x0; //Sets direction to input 
+    *(button_adress1 +1) = 0x0; //Sets direction to input 
     //Kanske använda edgecase också? 
 }
 
