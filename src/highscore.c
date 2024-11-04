@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <highscore.h>
 // för att bara köra det program:
 // gcc src/highscore.c -o test
 // ./test
