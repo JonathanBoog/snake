@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include <highscore.h>
+//#include <highscore.h>
 // för att bara köra det program:
 // gcc src/highscore.c -o test
 // ./test
-
+/*
 
 int loadHighScore() {
     const char *filename = "data/highscore.txt"; // Hardcoded file path
@@ -50,3 +50,4 @@ int main() {
 
     return 0;
 }
+*/

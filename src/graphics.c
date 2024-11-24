@@ -1,6 +1,6 @@
-#include <include/graphics.h>
+//#include <include/graphics.h>
 
-
+/*
 int main(){
     volatile char *VGA = (volatile char*) 0x08000000; // Create a pointer to the VGA pixel buffer. This is the "drawing" area.
     for (int i = 0; i < 320*480; i++)
@@ -14,7 +14,7 @@ int main(){
         for (int i = 0; i < 1000000; i++)
             asm volatile ("nop"); // Delay for some unit of time
     }
-
+*/
 
     /*
     volatile char *VGA = (volatile char*) 0x08000000; // Pekare till VGA-pixelbufferten
@@ -48,5 +48,5 @@ int main(){
             asm volatile("nop"); // Fördröjning
     }
 
-    */
-}
+    
+}*/
