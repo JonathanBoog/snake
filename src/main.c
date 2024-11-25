@@ -110,7 +110,11 @@ void handle_interrupt(unsigned cause)
     {
       direction = (direction - 1) % 4;
     }
-
+    /*
+    if (new_direction != (direction + 2) % 4) {
+    direction = new_direction;
+    }
+    */
     if (10 / snakespeed <= timeoutcount)
     {
       timeoutcount = 0;
@@ -130,7 +134,7 @@ void draw_board()
     }
   }
 }
-draw_snake(int snakex, int snakey, int color)
+void draw_snake(int snakex, int snakey, int color)
 {
   // Välj färg baserat på rutans position
 
@@ -145,7 +149,7 @@ draw_snake(int snakex, int snakey, int color)
   }
 }
 
-draw_box(int boxx, int boxy)
+void draw_box(int boxx, int boxy)
 {
   // Välj färg baserat på rutans position
 
