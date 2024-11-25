@@ -18,7 +18,6 @@ int tenth_hour = 2;
 char textstring[] = "text, more text, and even more text!";
 int timeoutcount = 0;
 
-int directions = 0;
 const int snakespeed = 2; // 2 per second
 int dx = 0;
 int dy = 0;
