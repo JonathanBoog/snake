@@ -32,6 +32,7 @@ const int snake_color = 0xfff;
 
 int food_x, food_y;
 const int food_color = 0xF00;
+int has_eaten = 0;
 
 void set_displays(int display_number, int value)
 {
@@ -200,21 +201,22 @@ void spawn_food() {
     draw_snake(food_x, food_y, food_color);
 }
 
-
-
 void check_food_collision() {
     if (snake[0][0] == food_x && snake[0][1] == food_y) {
+        has_eaten = 1;
         snake_length++;  // Öka längden
         spawn_food();    // Generera ny mat
     }
 }
 
-update_snake()
-{
-  draw_box(snake[snake_length - 1][0], snake[snake_length - 1][1]);
+void update_snake(){
+  if (!has_eaten){
+    draw_box(snake[snake_length - 1][0], snake[snake_length - 1][1]);
+  } else{
+    has_eaten = 0;
+  }
   // Move body segments (each segment follows the one before it)
-  for (int i = snake_length - 1; i > 0; i--)
-  {
+  for (int i = snake_length - 1; i > 0; i--){
     snake[i][0] = snake[i - 1][0]; // Copy row from the segment before
     snake[i][1] = snake[i - 1][1]; // Copy column from the segment before
   }
@@ -226,6 +228,7 @@ update_snake()
   
   if (check_collision()){
     game_over();
+    return;
   }
   check_food_collision();
   
