@@ -19,6 +19,7 @@ char textstring[] = "text, more text, and even more text!";
 int timeoutcount = 0;
 
 int directions = 0;
+const int snakespeed = 2; // 2 per second
 
 void set_displays(int display_number, int value)
 {
@@ -104,6 +105,8 @@ void handle_interrupt(unsigned cause)
     timeoutcount++;
     *(timer_adress) &= ~0x1;
 
+    
+
     if (!get_btn1())
     {
       directions++;
@@ -114,7 +117,20 @@ void handle_interrupt(unsigned cause)
       directions--;
       directions = directions % 4;
     }
+
+    if(10/snakespeed == timeoutcount){
+      timeoutcount = 0;
+      draw(directions);
+    }
   }
+}
+
+void draw_board(){
+  
+}
+
+void draw(directions){
+
 }
 
 /* Add your code here for initializing interrupts. */
