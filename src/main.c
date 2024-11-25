@@ -15,13 +15,10 @@ extern void delay(int);
 int mytime = 0x5950;
 int hours = 3;
 int tenth_hour = 2;
-char textstring[] = "text, more text, and even more text!";
 int timeoutcount = 0;
 
 int direction;
 const int snakespeed = 2; // 2 per second
-int dx = 0;
-int dy = 0;
 
 volatile char *VGA = (volatile char *)0x08000000; // Pekare till VGA-pixelbufferten
 const int square_size = 20;                       // Storleken på varje ruta i pixlar
@@ -32,6 +29,9 @@ int snake[100][2];    // Maximum length of the snake is 100 segments
 int snake_length = 3; // Start with a snake of 3 segments
 
 const int snake_color = 0xfff;
+
+int food_x, food_y;
+const int food_color = 0xF00;
 
 void set_displays(int display_number, int value)
 {
@@ -126,17 +126,7 @@ void draw_board()
   {
     for (unsigned int col = 0; col < num_cols; col++)
     {
-      // Välj färg baserat på rutans position
-      char color = (row + col) % 2 == 0 ? 0x0A : 0x02; // Grön och mörkgrön färg
-      for (unsigned int y = 0; y < square_size; y++)
-      {
-        for (unsigned int x = 0; x < square_size; x++)
-        {
-          // Beräkna pixelns position i VGA-bufferten
-          unsigned int pixel_index = (row * square_size + y) * 320 + (col * square_size + x);
-          VGA[pixel_index] = color;
-        }
-      }
+      draw_box(row, col);
     }
   }
 }
@@ -171,6 +161,50 @@ draw_box(int boxx, int boxy)
   }
 }
 
+int check_collision() {
+    // Kontrollera väggkollision
+    if (snake[0][0] < 0 || snake[0][0] >= num_rows || snake[0][1] < 0 || snake[0][1] >= num_cols) {
+        return 1; // Kollision
+    }
+    // Kontrollera kollision med kroppen
+    for (int i = 1; i < snake_length; i++) {
+        if (snake[0][0] == snake[i][0] && snake[0][1] == snake[i][1]) {
+            return 1; // Kollision
+        }
+    }
+    return 0; // Ingen kollision
+}
+
+void spawn_food() {
+    int collision;
+
+    do {
+        food_x = rand() % num_rows;
+        food_y = rand() % num_cols;
+
+        // Kontrollera om maten krockar med ormens kropp
+        collision = 0; // Förutsätt att det inte är en kollision
+        for (int i = 0; i < snake_length; i++) {
+            if (snake[i][0] == food_x && snake[i][1] == food_y) {
+                collision = 1; // Kollision hittad
+                break;
+            }
+        }
+    } while (collision); // Fortsätt om det finns en kollision
+
+    // Rita maten på spelplanen
+    draw_snake(food_x, food_y, food_color);
+}
+
+
+
+void check_food_collision() {
+    if (snake[0][0] == food_x && snake[0][1] == food_y) {
+        snake_length++;  // Öka längden
+        spawn_food();    // Generera ny mat
+    }
+}
+
 update_snake()
 {
   draw_box(snake[snake_length - 1][0], snake[snake_length - 1][1]);
@@ -180,9 +214,24 @@ update_snake()
     snake[i][0] = snake[i - 1][0]; // Copy row from the segment before
     snake[i][1] = snake[i - 1][1]; // Copy column from the segment before
   }
+  // Flytta ormens huvud
+  if (direction == 0) snake[0][1]++;    // Höger
+  if (direction == 1) snake[0][0]--;    // Upp
+  if (direction == 2) snake[0][1]--;    // Vänster
+  if (direction == 3) snake[0][0]++;    // Ner
+  
+  if (check_collision()){
+    game_over();
+  }
+  check_food_collision();
+  
   draw_snake(snake[0][0], snake[0][1], snake_color);
 }
 
+void game_over() {
+    display_string("GAME OVER");
+    while (1); // Pausa spelet
+}
 void init_snake()
 {
 
