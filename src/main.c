@@ -20,6 +20,8 @@ int timeoutcount = 0;
 
 int directions = 0;
 const int snakespeed = 2; // 2 per second
+int dx = 0;
+int dy = 0;
 
 void set_displays(int display_number, int value)
 {
@@ -109,18 +111,22 @@ void handle_interrupt(unsigned cause)
 
     if (!get_btn1())
     {
-      directions++;
-      directions = directions % 4;
+      dx++;
+      dy++;
+      dx = dx % 2;
+      dy = dy % 2;
     }
     if (!get_btn2())
     {
-      directions--;
-      directions = directions % 4;
+      dx--;
+      dy--;
+      dx = dx % 2;
+      dy = dy % 2;
     }
 
     if(10/snakespeed == timeoutcount){
       timeoutcount = 0;
-      draw(directions);
+      draw(dx,dy);
     }
   }
 }
@@ -129,7 +135,7 @@ void draw_board(){
   
 }
 
-void draw(directions){
+void draw(dx,dy){
 
 }
 
@@ -163,6 +169,29 @@ int main()
 
   // Call labinit()
   labinit();
+  volatile char *VGA = (volatile char *)0x08000000; // Pekare till VGA-pixelbufferten
+  unsigned int square_size = 20;                    // Storleken på varje ruta i pixlar
+  unsigned int num_rows = 240 / square_size;        // Antal rader
+  unsigned int num_cols = 320 / square_size;        // Antal kolumner
+
+  // Rita ett schackbrädsliknande mönster med gröna och mörkgröna rutor
+  for (unsigned int row = 0; row < num_rows; row++)
+  {
+    for (unsigned int col = 0; col < num_cols; col++)
+    {
+      // Välj färg baserat på rutans position
+      char color = (row + col) % 2 == 0 ? 0x0A : 0x02; // Grön och mörkgrön färg
+      for (unsigned int y = 0; y < square_size; y++)
+      {
+        for (unsigned int x = 0; x < square_size; x++)
+        {
+          // Beräkna pixelns position i VGA-bufferten
+          unsigned int pixel_index = (row * square_size + y) * 320 + (col * square_size + x);
+          VGA[pixel_index] = color;
+        }
+      }
+    }
+  }
 
   while (1)
   {
