@@ -36,6 +36,7 @@ const int food_color = 0xFF0000;
 int has_eaten;
 int current_highscore;
 int highest_score = 0;
+int gameover = 0;
 
 void set_displays(int display_number, int value)
 {
@@ -125,7 +126,7 @@ void handle_interrupt(unsigned cause)
     direction = new_direction;
     }
     */
-    if ((10 / snakespeed <= timeoutcount))
+    if ((10 / snakespeed <= timeoutcount) && !gameover)
     {
       timeoutcount = 0;
       update_snake();
@@ -159,7 +160,7 @@ void draw_box(int boxx, int boxy, int color){
 
 int check_collision(void){
   // Kontrollera väggkollision
-  if (snake[0][0] < 0 || snake[0][0] >= num_rows || snake[0][1] < 0 || snake[0][1] >= num_cols){
+  if ((snake[0][0] < 0) || (snake[0][0] >= num_rows) || (snake[0][1] < 0) || (snake[0][1] >= num_cols)){
     return 1; // Kollision
   }
   // Kontrollera kollision med kroppen
@@ -174,8 +175,7 @@ int check_collision(void){
 // FOOD
 void spawn_food(void){
   int collision;
-  int food_x;
-  int food_y;
+ 
 
   do {
     food_x = random_range(num_rows);
@@ -198,7 +198,7 @@ void spawn_food(void){
 
 // CHECK FOOD
 void check_food_collision(void){
-  if (snake[0][0] == food_x && snake[0][1] == food_y){
+  if ((snake[0][0] == food_x) && (snake[0][1] == food_y)){
     has_eaten = 1;
     snake_length++; // Öka längden
     current_highscore++;
@@ -210,6 +210,7 @@ void check_food_collision(void){
 void update_snake(void){
   
   int color = (snake[snake_length - 1][0] + snake[snake_length - 1][1]) % 2 == 0 ? 0x0A : 0x02;
+  
   
   if (!has_eaten){
     draw_box(snake[snake_length - 1][0], snake[snake_length - 1][1], color);
@@ -243,19 +244,22 @@ void update_snake(void){
     break;
   }
 
-
   if (check_collision())
-  {
-    game_over();
-  }
-  check_food_collision();
+    {
+      game_over();
+    }
+  check_food_collision(); 
 
   draw_box(snake[0][0], snake[0][1], snake_color);
+
+  
+
 }
 
 //END GAME ;(
 void game_over(void){
   
+  gameover = 1;
   // Set highscore
   if (current_highscore > highest_score) {
     highest_score = current_highscore;
@@ -323,7 +327,6 @@ int main()
     {
       left_button_pressed = 1;
       direction++;
-      print_dec(direction);
     } else if (get_btn1())
     {
       left_button_pressed = 0;
