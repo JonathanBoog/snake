@@ -1,10 +1,9 @@
-#include <stdio.h>
+
 //#include <highscore.h>
 // för att bara köra det program:
 // gcc src/highscore.c -o test
 // ./test
 /*
-
 int loadHighScore() {
     const char *filename = "data/highscore.txt"; // Hardcoded file path
     FILE *file = fopen(filename, "r");           // Open file for reading
@@ -39,13 +38,11 @@ void saveHighScore(int score) {
 
 int main() {
     int highscore = loadHighScore();
-    printf("Current High Score: %d\n", highscore);
 
     // Update high score in the game if needed
     int newScore = 2; // Example score
     if (newScore > highscore) {
         saveHighScore(newScore);
-        printf("New High Score: %d\n", newScore);
     }
 
     return 0;

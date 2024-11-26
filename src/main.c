@@ -34,6 +34,8 @@ const int snake_color = 0xfff;
 int food_x, food_y;
 const int food_color = 0xFF0000;
 int has_eaten;
+int current_highscore;
+int highest_score = 0;
 
 void set_displays(int display_number, int value)
 {
@@ -75,13 +77,13 @@ void set_displays(int display_number, int value)
   }
 }
 
-unsigned int read_timer()
+unsigned int read_timer(void)
 {
   volatile unsigned int *timer_address = (volatile unsigned int *)0x04000020;
   return *timer_address; // Läs av nuvarande tid från timern
 }
 
-unsigned int random()
+unsigned int random(void)
 {
   int seed = (1103515245 * read_timer() + 12345) % 0x7FFFFFFF; // Standard LCG-algoritm
   return seed;
@@ -124,14 +126,12 @@ void handle_interrupt(unsigned cause)
     {
       direction = (direction - 1) % 4;
     }
-
      /*
     if (new_direction != (direction + 2) % 4) {
     direction = new_direction;
     }
     */
-
-    if (10 / snakespeed <= timeoutcount)
+    else if ((10 / snakespeed <= timeoutcount))
     {
       timeoutcount = 0;
       update_snake();
@@ -139,7 +139,7 @@ void handle_interrupt(unsigned cause)
   }
 }
 
-void draw_board()
+void draw_board(void)
 {
   int color;
   // Rita ett schackbrädsliknande mönster med gröna och mörkgröna rutor
@@ -153,13 +153,9 @@ void draw_board()
   }
 }
 
-void draw_box(int boxx, int boxy, int color)
-{
-
-  for (unsigned int y = 0; y < square_size; y++)
-  {
-    for (unsigned int x = 0; x < square_size; x++)
-    {
+void draw_box(int boxx, int boxy, int color){
+  for (unsigned int y = 0; y < square_size; y++){
+    for (unsigned int x = 0; x < square_size; x++){
       // Beräkna pixelns position i VGA-bufferten
       unsigned int pixel_index = (boxx * square_size + y) * 320 + (boxy * square_size + x);
       VGA[pixel_index] = color;
@@ -167,39 +163,34 @@ void draw_box(int boxx, int boxy, int color)
   }
 }
 
-int check_collision()
-{
+int check_collision(void){
   // Kontrollera väggkollision
-  if (snake[0][0] < 0 || snake[0][0] >= num_rows || snake[0][1] < 0 || snake[0][1] >= num_cols)
-  {
+  if (snake[0][0] < 0 || snake[0][0] >= num_rows || snake[0][1] < 0 || snake[0][1] >= num_cols){
     return 1; // Kollision
   }
   // Kontrollera kollision med kroppen
-  for (int i = 1; i < snake_length; i++)
-  {
-    if (snake[0][0] == snake[i][0] && snake[0][1] == snake[i][1])
-    {
+  for (int i = 1; i < snake_length; i++){
+    if (snake[0][0] == snake[i][0] && snake[0][1] == snake[i][1]){
       return 1; // Kollision
     }
   }
   return 0; // Ingen kollision
 }
 
-void spawn_food()
-{
+// FOOD
+void spawn_food(void){
   int collision;
+  int food_x;
+  int food_y;
 
-  do
-  {
+  do {
     food_x = random_range(num_rows);
     food_y = random_range(num_cols);
 
     // Kontrollera om maten krockar med ormens kropp
     collision = 0; // Förutsätt att det inte är en kollision
-    for (int i = 0; i < snake_length; i++)
-    {
-      if (snake[i][0] == food_x && snake[i][1] == food_y)
-      {
+    for (int i = 0; i < snake_length; i++){
+      if (snake[i][0] == food_x && snake[i][1] == food_y){
         collision = 1; // Kollision hittad
         break;
       }
@@ -211,18 +202,21 @@ void spawn_food()
   draw_box(food_x, food_y, food_color);
 }
 
-void check_food_collision()
-{
-  if (snake[0][0] == food_x && snake[0][1] == food_y)
-  {
+// CHECK FOOD
+void check_food_collision(void){
+  if (snake[0][0] == food_x && snake[0][1] == food_y){
     has_eaten = 1;
     snake_length++; // Öka längden
+    current_highscore++;
     spawn_food();   // Generera ny mat
   }
 }
 
-void update_snake(){
-   int color = (snake[snake_length - 1][0] + snake[snake_length - 1][1]) % 2 == 0 ? 0x0A : 0x02;
+//UPDATE SNAKE
+void update_snake(void){
+  
+  int color = (snake[snake_length - 1][0] + snake[snake_length - 1][1]) % 2 == 0 ? 0x0A : 0x02;
+  
   if (!has_eaten){
     draw_box(snake[snake_length - 1][0], snake[snake_length - 1][1], color);
   } else{
@@ -254,11 +248,13 @@ void update_snake(){
   draw_box(snake[0][0], snake[0][1], snake_color);
 }
 
-void game_over()
-{
-  display_string("GAME OVER");
-  while (1)
-    ; // Pausa spelet
+//END GAME ;(
+void game_over(void){
+  
+  // Set highscore
+  if (current_highscore > highest_score) {
+    highest_score = current_highscore;
+  }
 }
 void init_snake()
 {
