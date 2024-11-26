@@ -18,7 +18,7 @@ int hours = 3;
 int tenth_hour = 2;
 int timeoutcount = 0;
 
-int direction;
+volatile int direction;
 const int snakespeed = 2; // 2 per second
 
 volatile char *VGA = (volatile char *)0x08000000; // Pekare till VGA-pixelbufferten
@@ -108,6 +108,7 @@ int get_btn2(void)
   return *button_adress & 0x2;
 }
 
+
 /* Below is the function that will be called when an interrupt is triggered. */
 void handle_interrupt(unsigned cause)
 {
@@ -118,20 +119,13 @@ void handle_interrupt(unsigned cause)
     timeoutcount++;
     *(timer_adress) &= ~0x1;
 
-    if (!get_btn1())
-    {
-      direction = (direction + 1) % 4;
-    }
-    if (!get_btn2())
-    {
-      direction = (direction - 1) % 4;
-    }
+    
      /*
     if (new_direction != (direction + 2) % 4) {
     direction = new_direction;
     }
     */
-    else if ((10 / snakespeed <= timeoutcount))
+    if ((10 / snakespeed <= timeoutcount))
     {
       timeoutcount = 0;
       update_snake();
@@ -230,14 +224,25 @@ void update_snake(void){
     snake[i][1] = snake[i - 1][1]; // Copy column from the segment before
   }
   // Flytta ormens huvud
-  if (direction == 0)
+  switch (direction % 4)
+  {
+  case 0:
     snake[0][1]++; // Höger
-  if (direction == 1)
-    snake[0][0]--; // Upp
-  if (direction == 2)
+    break;
+  case 1:
+    snake[0][0]++; // Upp
+    break;
+  case 2:
     snake[0][1]--; // Vänster
-  if (direction == 3)
-    snake[0][0]++; // Ner
+    break;
+  case 3:
+    snake[0][0]--; // Ner
+    break;
+  
+  default:
+    break;
+  }
+
 
   if (check_collision())
   {
@@ -259,7 +264,7 @@ void game_over(void){
 void init_snake()
 {
   snake_length = 3;
-  direction = 0;
+  direction = 624;
   has_eaten = 0;
   int start_row = num_rows / 2; // Middle row
   int start_col = num_cols / 2; // Middle column
@@ -307,7 +312,31 @@ int main()
   labinit();
   init_snake();
 
+  int left_button_pressed = 0;
+  int right_button_pressed = 0;
+
   while (1)
   {
+    
+
+    if (!get_btn1() && !(left_button_pressed))
+    {
+      left_button_pressed = 1;
+      direction++;
+      print_dec(direction);
+    } else if (get_btn1())
+    {
+      left_button_pressed = 0;
+    }
+
+    if (!get_btn2() && !(right_button_pressed))
+    {
+      right_button_pressed = 1;
+      direction--;
+    } else if (get_btn2())
+    {
+      right_button_pressed = 0;
+    }
+    delay(10);
   }
 }
