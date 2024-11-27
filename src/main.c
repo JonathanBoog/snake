@@ -16,10 +16,11 @@ extern void delay(int);
 int mytime = 0x5950;
 int hours = 3;
 int tenth_hour = 2;
-int timeoutcount = 0;
+int timeoutcount = 1;
+int random_number = 0;
 
 volatile int direction;
-const int snakespeed = 2; // 2 per second
+const int snakespeed = 5;
 
 volatile char *VGA = (volatile char *)0x08000000; // Pekare till VGA-pixelbufferten
 const int square_size = 20;                       // Storleken på varje ruta i pixlar
@@ -86,7 +87,7 @@ unsigned int read_timer(void)
 
 unsigned int random(void)
 {
-  int seed = (1103515245 * read_timer() + 12345) % 0x7FFFFFFF; // Standard LCG-algoritm
+  int seed = (115 * random_number + 12345) % 0x7FFFFFFF; // Standard LCG-algoritm
   return seed;
 }
 
@@ -134,6 +135,12 @@ void handle_interrupt(unsigned cause)
     if ((10 / snakespeed <= timeoutcount) && !gameover)
     {
       timeoutcount = 0;
+      random_number++;
+      if (random_number >= 123)
+      {
+        random_number = 1;
+      }
+      
       update_snake();
     }
   }
@@ -152,12 +159,12 @@ void draw_board(void)
     }
   }
 }
-
+unsigned int pixel_index;
 void draw_box(int boxx, int boxy, int color){
   for (unsigned int y = 0; y < square_size; y++){
     for (unsigned int x = 0; x < square_size; x++){
       // Beräkna pixelns position i VGA-bufferten
-      unsigned int pixel_index = (boxx * square_size + y) * 320 + (boxy * square_size + x);
+      pixel_index = (boxx * square_size + y) * 320 + (boxy * square_size + x);
       VGA[pixel_index] = color;
     }
   }
@@ -166,14 +173,17 @@ void draw_box(int boxx, int boxy, int color){
 int check_collision(void){
   // Kontrollera väggkollision
   if ((snake[0][0] < 0) || (snake[0][0] >= num_rows) || (snake[0][1] < 0) || (snake[0][1] >= num_cols)){
+    print("-collision-wall-");
     return 1; // Kollision
   }
   // Kontrollera kollision med kroppen
   for (int i = 1; i < snake_length; i++){
     if ((snake[0][0] == snake[i][0]) && (snake[0][1] == snake[i][1])){
+      print("-collision-snake-");
       return 1; // Kollision
     }
   }
+  print("-check_collision-");
   return 0; // Ingen kollision
 }
 
@@ -185,30 +195,36 @@ void spawn_food(void){
   do {
     food_x = random_range(num_rows);
     food_y = random_range(num_cols);
-
+    
+    random_number++;
     // Kontrollera om maten krockar med ormens kropp
     collision = 0; // Förutsätt att det inte är en kollision
     for (int i = 0; i < snake_length; i++){
       if ((snake[i][0] == food_x) && (snake[i][1] == food_y)){
         collision = 1; // Kollision hittad
+        print("");
         break;
       }
     }
-
+    print("whiiiiiiile");
   } while (collision); // Fortsätt om det finns en kollision
 
   // Rita maten på spelplanen
   draw_box(food_x, food_y, food_color);
+  print("-Spawn_food-");
 }
 
 // CHECK FOOD
 void check_food_collision(void){
   if ((snake[0][0] == food_x) && (snake[0][1] == food_y)){
+    print("mein food is eaten");
     has_eaten = 1;
     snake_length++; // Öka längden
     current_highscore++;
     spawn_food();   // Generera ny mat
   }
+  print_dec(snake_length);
+  print("-check_food_collision-");
 }
 
 //UPDATE SNAKE
@@ -252,12 +268,14 @@ void update_snake(void){
   if (check_collision())
     {
       game_over();
+      
     }
-  check_food_collision(); 
+  check_food_collision();
+   
 
   draw_box(snake[0][0], snake[0][1], snake_color);
 
-  
+  print("-update snake-");
 
 }
 
@@ -294,11 +312,11 @@ void init_snake()
 /* Add your code here for initializing interrupts. */
 void labinit(void)
 {
-  volatile int *button_adress1 = (volatile int *)0x040000e0;
-  // volatile int* button_adress2 = (volatile unsigned short*);
+  volatile int *button_adress = (volatile int *)0x040000e0;
 
-  *(button_adress1 + 1) = 0x0; // Sets direction to input
-  //*(button_adress2 + 1) = 0x0; // Sets direction to input
+
+  *(button_adress + 1) = 0x0; // Sets direction to input
+ 
 
   volatile unsigned short *timer_adress = (volatile unsigned short *)0x04000020;
 
@@ -330,6 +348,7 @@ int main()
     {
       init_snake();
       gameover = 0;
+      print("test");
     }
     
 
