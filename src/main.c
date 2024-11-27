@@ -33,7 +33,7 @@ int snake_length; // Start with a snake of 3 segments
 const int snake_color = 0xfff;
 
 int food_x, food_y;
-const int food_color = 0xFF0000;
+const int food_color = 0xa9;
 int has_eaten;
 int current_highscore;
 int highest_score = 0;
@@ -134,6 +134,7 @@ void handle_interrupt(unsigned cause)
     */
     if ((10 / snakespeed <= timeoutcount) && !gameover)
     {
+      if()
       timeoutcount = 0;
       random_number++;
       if (random_number >= 123)
@@ -272,8 +273,8 @@ void update_snake(void){
     }
   check_food_collision();
    
-
-  draw_box(snake[0][0], snake[0][1], snake_color);
+  int newcolor = (snake[0][0] + snake[0][1]) % 2 == 0 ? 0x6F: 0xCF;
+  draw_box(snake[0][0], snake[0][1], newcolor);
 
   print("-update snake-");
 
