@@ -20,6 +20,7 @@ int timeoutcount = 1;
 int random_number = 0;
 
 volatile int direction;
+volatile int new_direction;
 const int snakespeed = 5;
 
 volatile char *VGA = (volatile char *)0x08000000; // Pekare till VGA-pixelbufferten
@@ -127,15 +128,15 @@ void handle_interrupt(unsigned cause)
     *(timer_adress) &= ~0x1;
 
     
-     /*
-    if (new_direction != (direction + 2) % 4) {
-    direction = new_direction;
-    }
-    */
     if ((10 / snakespeed <= timeoutcount) && !gameover)
     {
-      if()
       timeoutcount = 0;
+      
+      if (new_direction != (direction + 2) % 4) // Tror eventuellt att if-satsen inte behövs
+      {
+        direction = new_direction; // Uppdatera riktningen
+      }
+      
       random_number++;
       if (random_number >= 123)
       {
@@ -292,7 +293,8 @@ void game_over(void){
 void init_snake()
 {
   snake_length = 3;
-  direction = 624;
+  direction = 0;
+  new_direction = 0;
   has_eaten = 0;
   int start_row = num_rows / 2; // Middle row
   int start_col = num_cols / 2; // Middle column
@@ -356,7 +358,7 @@ int main()
     if (!get_btn1() && !(left_button_pressed))
     {
       left_button_pressed = 1;
-      direction++;
+      new_direction = (direction + 3) % 4; // Vänster (rotera 90° moturs)
     } else if (get_btn1())
     {
       left_button_pressed = 0;
@@ -365,7 +367,8 @@ int main()
     if (!get_btn2() && !(right_button_pressed))
     {
       right_button_pressed = 1;
-      direction--;
+      new_direction = (direction + 1) % 4; // Höger (rotera 90° medurs)
+
     } else if (get_btn2())
     {
       right_button_pressed = 0;
