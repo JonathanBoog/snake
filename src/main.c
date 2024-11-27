@@ -96,6 +96,11 @@ unsigned int random_range(unsigned int max)
   return random() % max;
 }
 
+int get_btn_restart(void){
+  volatile int *button_adress = (volatile int *)0x40000d0;
+  return *button_adress & 0x1;
+}
+
 // get btn 1
 int get_btn1(void)
 {
@@ -165,7 +170,7 @@ int check_collision(void){
   }
   // Kontrollera kollision med kroppen
   for (int i = 1; i < snake_length; i++){
-    if (snake[0][0] == snake[i][0] && snake[0][1] == snake[i][1]){
+    if ((snake[0][0] == snake[i][0]) && (snake[0][1] == snake[i][1])){
       return 1; // Kollision
     }
   }
@@ -184,7 +189,7 @@ void spawn_food(void){
     // Kontrollera om maten krockar med ormens kropp
     collision = 0; // Förutsätt att det inte är en kollision
     for (int i = 0; i < snake_length; i++){
-      if (snake[i][0] == food_x && snake[i][1] == food_y){
+      if ((snake[i][0] == food_x) && (snake[i][1] == food_y)){
         collision = 1; // Kollision hittad
         break;
       }
@@ -321,6 +326,11 @@ int main()
 
   while (1)
   {
+    if (get_btn_restart())
+    {
+      init_snake();
+      gameover = 0;
+    }
     
 
     if (!get_btn1() && !(left_button_pressed))
