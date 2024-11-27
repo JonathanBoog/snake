@@ -127,7 +127,7 @@ void handle_interrupt(unsigned cause)
     timeoutcount++;
     *(timer_adress) &= ~0x1;
 
-    
+    //eventuellt kolla om har käkat -> långsamt plocka bort stjärten
     if ((10 / snakespeed <= timeoutcount) && !gameover)
     {
       timeoutcount = 0;
@@ -145,6 +145,8 @@ void handle_interrupt(unsigned cause)
       
       update_snake();
     }
+
+    // eventuellt ha en draw huvud här
   }
 }
 
