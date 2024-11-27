@@ -164,7 +164,7 @@ void draw_board(void)
 unsigned int pixel_index;
 void draw_box(int boxx, int boxy, int color){
   for (unsigned int y = 0; y < square_size; y++){
-    for (unsigned int x = 0; x < square_size; x++){
+    for (unsigned int x = 0; x < square_size; x++){ // for (unsigned int x = timeoutcount/square_size; x < (timeoutcount+1)/square_size; x++)
       // Beräkna pixelns position i VGA-bufferten
       pixel_index = (boxx * square_size + y) * 320 + (boxy * square_size + x);
       VGA[pixel_index] = color;
