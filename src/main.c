@@ -19,6 +19,9 @@ int tenth_hour = 2;
 int timeoutcount = 1;
 int random_number = 0;
 
+
+
+
 volatile int direction;
 volatile int new_direction;
 const int snakespeed = 5;
@@ -28,13 +31,15 @@ const int square_size = 20;                       // Storleken på varje ruta i 
 const int num_rows = 240 / square_size;           // Antal rader
 const int num_cols = 320 / square_size;           // Antal kolumner
 
-int snake[100][2];    // Maximum length of the snake is 100 segments
+int snake[192][2];    // Maximum length of the snake is 100 segments
 int snake_length; // Start with a snake of 3 segments
 
-const int snake_color = 0xfff;
+int green1 = 0x4C;
+int green2 = 0x9C;
+const int snake_color = 0xff;
+const int food_color = 0xe0;
 
 int food_x, food_y;
-const int food_color = 0xa9;
 int has_eaten;
 int current_highscore;
 int highest_score = 0;
@@ -46,56 +51,66 @@ void set_displays(int display_number, int value)
   switch (value)
   {
   case 0:
-    *display_adress = 0b1000000;
+    *display_adress = 0b11000000;
     break;
   case 1:
-    *display_adress = 0b1111001;
+    *display_adress = 0b11111001;
     break;
   case 2:
-    *display_adress = 0b0100100;
+    *display_adress = 0b10100100;
     break;
   case 3:
-    *display_adress = 0b0110000;
+    *display_adress = 0b10110000;
     break;
   case 4:
-    *display_adress = 0b0011001;
+    *display_adress = 0b10011001;
     break;
   case 5:
-    *display_adress = 0b0010010;
+    *display_adress = 0b10010010;
     break;
   case 6:
-    *display_adress = 0b0000010;
+    *display_adress = 0b10000010;
     break;
   case 7:
-    *display_adress = 0b1111000;
+    *display_adress = 0b11111000;
     break;
   case 8:
-    *display_adress = 0b0000000;
+    *display_adress = 0b10000000;
     break;
   case 9:
-    *display_adress = 0b0010000;
+    *display_adress = 0b10010000;
+    break;
+  //Bokstaven C
+  case 10: 
+    *display_adress = 0b11000110;
+    break;
+  //Bokstaven H
+  case 11: 
+    *display_adress = 0b10001001;
     break;
   default:
-    *display_adress = 0x00;
+    *display_adress = 0xff;
   }
 }
 
-unsigned int read_timer(void)
-{
-  volatile unsigned int *timer_address = (volatile unsigned int *)0x04000020;
-  return *timer_address; // Läs av nuvarande tid från timern
+void display_score(int score){
+ 
+  
+  set_displays(0, score%10);
+  set_displays(1, (score/10)%10);
+  set_displays(2, score/100);
+  set_displays(3, 12);
+  set_displays(4, 12);
+  set_displays(5, 10);
+  //set_displays(5, 11);
 }
 
-unsigned int random(void)
-{
-  int seed = (115 * random_number + 12345) % 0x7FFFFFFF; // Standard LCG-algoritm
-  return seed;
-}
+
 
 // Funktion för att begränsa värdet till ett intervall [0, max - 1]
 unsigned int random_range(unsigned int max)
 {
-  return random() % max;
+  return ((115 * random_number + 12345) % 0x7FFFFFFF) % max;
 }
 
 int get_btn_restart(void){
@@ -158,7 +173,7 @@ void draw_board(void)
   {
     for (unsigned int col = 0; col < num_cols; col++)
     {
-      color = (row + col) % 2 == 0 ? 0x0A : 0x02;
+      color = (row + col) % 2 == 0 ? green1 : green2;
       draw_box(row, col, color);
     }
   }
@@ -174,20 +189,27 @@ void draw_box(int boxx, int boxy, int color){
   }
 }
 
+void draw_food_box(int boxx, int boxy, int color){
+  for (unsigned int y = 3; y < square_size-3; y++){
+    for (unsigned int x = 3; x < square_size-3; x++){ // for (unsigned int x = timeoutcount/square_size; x < (timeoutcount+1)/square_size; x++)
+      // Beräkna pixelns position i VGA-bufferten
+      pixel_index = (boxx * square_size + y) * 320 + (boxy * square_size + x);
+      VGA[pixel_index] = color;
+    }
+  }
+}
+
 int check_collision(void){
   // Kontrollera väggkollision
   if ((snake[0][0] < 0) || (snake[0][0] >= num_rows) || (snake[0][1] < 0) || (snake[0][1] >= num_cols)){
-    print("-collision-wall-");
     return 1; // Kollision
   }
   // Kontrollera kollision med kroppen
   for (int i = 1; i < snake_length; i++){
     if ((snake[0][0] == snake[i][0]) && (snake[0][1] == snake[i][1])){
-      print("-collision-snake-");
       return 1; // Kollision
     }
   }
-  print("-check_collision-");
   return 0; // Ingen kollision
 }
 
@@ -206,35 +228,29 @@ void spawn_food(void){
     for (int i = 0; i < snake_length; i++){
       if ((snake[i][0] == food_x) && (snake[i][1] == food_y)){
         collision = 1; // Kollision hittad
-        print("");
         break;
       }
     }
-    print("whiiiiiiile");
   } while (collision); // Fortsätt om det finns en kollision
 
   // Rita maten på spelplanen
-  draw_box(food_x, food_y, food_color);
-  print("-Spawn_food-");
+  draw_food_box(food_x, food_y, food_color);
 }
 
 // CHECK FOOD
 void check_food_collision(void){
   if ((snake[0][0] == food_x) && (snake[0][1] == food_y)){
-    print("mein food is eaten");
     has_eaten = 1;
     snake_length++; // Öka längden
     current_highscore++;
+    display_score(current_highscore);
     spawn_food();   // Generera ny mat
   }
-  print_dec(snake_length);
-  print("-check_food_collision-");
 }
 
 //UPDATE SNAKE
 void update_snake(void){
-  
-  int color = (snake[snake_length - 1][0] + snake[snake_length - 1][1]) % 2 == 0 ? 0x0A : 0x02;
+  int color = (snake[snake_length - 1][0] + snake[snake_length - 1][1]) % 2 == 0 ? green1 : green2;
   
   
   if (!has_eaten){
@@ -272,15 +288,12 @@ void update_snake(void){
   if (check_collision())
     {
       game_over();
-      
+      return;
     }
   check_food_collision();
    
-  int newcolor = (snake[0][0] + snake[0][1]) % 2 == 0 ? 0x6F: 0xCF;
-  draw_box(snake[0][0], snake[0][1], newcolor);
-
-  print("-update snake-");
-
+  
+  draw_box(snake[0][0], snake[0][1], snake_color);
 }
 
 //END GAME ;(
@@ -298,6 +311,9 @@ void init_snake()
   direction = 0;
   new_direction = 0;
   has_eaten = 0;
+  current_highscore = 0;
+  display_score(current_highscore);
+
   int start_row = num_rows / 2; // Middle row
   int start_col = num_cols / 2; // Middle column
 
@@ -318,11 +334,8 @@ void init_snake()
 void labinit(void)
 {
   volatile int *button_adress = (volatile int *)0x040000e0;
-
-
   *(button_adress + 1) = 0x0; // Sets direction to input
  
-
   volatile unsigned short *timer_adress = (volatile unsigned short *)0x04000020;
 
   // Ställ in timeout-perioden till 3 000 000(-1,nollindexerat) cykler (100 ms vid 30 MHz)
@@ -347,13 +360,13 @@ int main()
   int left_button_pressed = 0;
   int right_button_pressed = 0;
 
+
   while (1)
   {
     if (get_btn_restart())
     {
-      init_snake();
       gameover = 0;
-      print("test");
+      init_snake();
     }
     
 
