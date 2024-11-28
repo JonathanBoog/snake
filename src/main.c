@@ -17,26 +17,28 @@ int mytime = 0x5950;
 int hours = 3;
 int tenth_hour = 2;
 int timeoutcount = 1;
-int random_number = 0;
 
+int random_number1 = 1;
+int random_number2 = 6;
 
 
 
 volatile int direction;
 volatile int new_direction;
-const int snakespeed = 5;
+const int snakespeed = 2;
 
 volatile char *VGA = (volatile char *)0x08000000; // Pekare till VGA-pixelbufferten
-const int square_size = 20;                       // Storleken på varje ruta i pixlar
+const int square_size = 40;                       // Storleken på varje ruta i pixlar
 const int num_rows = 240 / square_size;           // Antal rader
 const int num_cols = 320 / square_size;           // Antal kolumner
 
 int snake[192][2];    // Maximum length of the snake is 100 segments
 int snake_length; // Start with a snake of 3 segments
 
-int green1 = 0x4C;
-int green2 = 0x9C;
+const int green1 = 0x4C;
+const int green2 = 0x9C;
 const int snake_color = 0xff;
+const int head_color = 0x45;
 const int food_color = 0xe0;
 
 int food_x, food_y;
@@ -112,9 +114,9 @@ void display_score(int score, char letter){
 
 
 // Funktion för att begränsa värdet till ett intervall [0, max - 1]
-unsigned int random_range(unsigned int max)
+unsigned int random_range(int random_num, unsigned int max)
 {
-  return ((115 * random_number + 12345) % 0x7FFFFFFF) % max;
+  return (433* random_num + 12345) % max;
 }
 
 int get_sw( void ){
@@ -151,6 +153,11 @@ void handle_interrupt(unsigned cause)
     timeoutcount++;
     *(timer_adress) &= ~0x1;
 
+    // highscore
+    if (current_highscore > highest_score) {
+    highest_score = current_highscore;
+    }
+
     if(get_sw()){
       display_score(current_highscore, 'c');
     } else{
@@ -166,11 +173,7 @@ void handle_interrupt(unsigned cause)
         direction = new_direction; // Uppdatera riktningen
       }
       
-      random_number++;
-      if (random_number >= 123)
-      {
-        random_number = 1;
-      }
+      
       
       update_snake();
     }
@@ -235,10 +238,9 @@ void spawn_food(void){
  
 
   do {
-    food_x = random_range(num_rows);
-    food_y = random_range(num_cols);
-    
-    random_number++;
+    food_x = random_range(random_number1, num_rows);
+    food_y = random_range(random_number2, num_cols);
+
     // Kontrollera om maten krockar med ormens kropp
     collision = 0; // Förutsätt att det inte är en kollision
     for (int i = 0; i < snake_length; i++){
@@ -308,7 +310,8 @@ void update_snake(void){
   check_food_collision();
    
   
-  draw_box(snake[0][0], snake[0][1], snake_color);
+  draw_box(snake[0][0], snake[0][1], head_color);
+  draw_box(snake[1][0], snake[1][1], snake_color);
 }
 
 //END GAME ;(
@@ -338,7 +341,7 @@ void init_snake()
   }
   
   draw_board();
-  draw_box(snake[0][0], snake[0][1], snake_color);
+  draw_box(snake[0][0], snake[0][1], head_color);
   draw_box(snake[1][0], snake[1][1], snake_color);
   draw_box(snake[2][0], snake[2][1], snake_color);
   spawn_food();
@@ -366,7 +369,6 @@ void labinit(void)
 /* Your code goes into main as well as any needed functions. */
 int main()
 {
-
   // Call labinit()
   labinit();
   init_snake();
@@ -377,6 +379,18 @@ int main()
 
   while (1)
   {
+    random_number1++;
+    random_number2++;
+    if (random_number1 >= 134)
+    {
+      random_number1 = 1;
+      random_number2++;
+    }
+    if (random_number2 >= 278)
+    {
+      random_number2 = 1;
+    }
+
     if (get_btn_restart())
     {
       gameover = 0;
