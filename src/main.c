@@ -237,22 +237,45 @@ void spawn_food(void){
   int collision;
  
 
-  do {
+  
     food_x = random_range(random_number1, num_rows);
     food_y = random_range(random_number2, num_cols);
 
+  do {
     // Kontrollera om maten krockar med ormens kropp
     collision = 0; // Förutsätt att det inte är en kollision
     for (int i = 0; i < snake_length; i++){
       if ((snake[i][0] == food_x) && (snake[i][1] == food_y)){
         collision = 1; // Kollision hittad
-        break;
+        
+        if (food_y == (num_cols-1)){
+          food_x = (food_x + 1) % num_rows;
+          food_y = (food_y + 1) % num_cols;
+          print_dec(food_x);
+        print("-move X-");
+          
+        } else{
+        food_y = (food_y + 1) % num_cols;
+        print("-move Y-");
+          print_dec(food_y);
+        }
+        if (current_highscore == (num_cols*num_rows-3))
+        {
+          collision = 0;
+          game_over();
+        }
+        
+        
       }
     }
   } while (collision); // Fortsätt om det finns en kollision
 
   // Rita maten på spelplanen
-  draw_food_box(food_x, food_y, food_color);
+  if (current_highscore != (num_cols*num_rows-3))
+    {
+      draw_food_box(food_x, food_y, food_color);
+    }
+  
 }
 
 // CHECK FOOD
@@ -312,6 +335,7 @@ void update_snake(void){
   
   draw_box(snake[0][0], snake[0][1], head_color);
   draw_box(snake[1][0], snake[1][1], snake_color);
+  
 }
 
 //END GAME ;(
