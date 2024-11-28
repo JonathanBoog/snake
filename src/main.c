@@ -93,7 +93,7 @@ void set_displays(int display_number, int value)
   }
 }
 
-void display_score(int score){
+void display_score(int score, char letter){
  
   
   set_displays(0, score%10);
@@ -101,16 +101,25 @@ void display_score(int score){
   set_displays(2, score/100);
   set_displays(3, 12);
   set_displays(4, 12);
-  set_displays(5, 10);
-  //set_displays(5, 11);
-}
 
+  if (letter == 'c')
+  {
+    set_displays(5, 10);
+  } else if (letter == 'h'){
+    set_displays(5, 11);
+  }
+}
 
 
 // Funktion för att begränsa värdet till ett intervall [0, max - 1]
 unsigned int random_range(unsigned int max)
 {
   return ((115 * random_number + 12345) % 0x7FFFFFFF) % max;
+}
+
+int get_sw( void ){
+  volatile int* switch_adress = (volatile int*) 0x4000010;
+  return *switch_adress & 0x1;
 }
 
 int get_btn_restart(void){
@@ -142,6 +151,11 @@ void handle_interrupt(unsigned cause)
     timeoutcount++;
     *(timer_adress) &= ~0x1;
 
+    if(get_sw()){
+      display_score(current_highscore, 'c');
+    } else{
+      display_score(highest_score, 'h');
+    }
     //eventuellt kolla om har käkat -> långsamt plocka bort stjärten
     if ((10 / snakespeed <= timeoutcount) && !gameover)
     {
@@ -199,6 +213,8 @@ void draw_food_box(int boxx, int boxy, int color){
   }
 }
 
+
+
 int check_collision(void){
   // Kontrollera väggkollision
   if ((snake[0][0] < 0) || (snake[0][0] >= num_rows) || (snake[0][1] < 0) || (snake[0][1] >= num_cols)){
@@ -243,7 +259,6 @@ void check_food_collision(void){
     has_eaten = 1;
     snake_length++; // Öka längden
     current_highscore++;
-    display_score(current_highscore);
     spawn_food();   // Generera ny mat
   }
 }
@@ -312,7 +327,6 @@ void init_snake()
   new_direction = 0;
   has_eaten = 0;
   current_highscore = 0;
-  display_score(current_highscore);
 
   int start_row = num_rows / 2; // Middle row
   int start_col = num_cols / 2; // Middle column
