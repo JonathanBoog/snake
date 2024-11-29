@@ -183,10 +183,10 @@ void handle_interrupt(unsigned cause)
   }
 }
 
+//Draw a "chess"board
 void draw_board(void)
 {
   int color;
-  // Rita ett schackbrädsliknande mönster med gröna och mörkgröna rutor
   for (unsigned int row = 0; row < num_rows; row++)
   {
     for (unsigned int col = 0; col < num_cols; col++)
@@ -196,8 +196,8 @@ void draw_board(void)
     }
   }
 }
-
-void draw_box(int boxx, int boxy, int leftoffset, int topoffset,int rightoffset,int downoffset, int color){
+// Draws a square, rows & columns, color, and indent from left, top, right and bottom.
+void draw_box(int boxx, int boxy, int color, int leftoffset, int topoffset, int rightoffset,int downoffset){
   unsigned int pixel_index;
   for (unsigned int y = topoffset; y < square_size-downoffset; y++){
     for (unsigned int x = leftoffset; x < square_size-rightoffset; x++){ // for (unsigned int x = timeoutcount/square_size; x < (timeoutcount+1)/square_size; x++)
