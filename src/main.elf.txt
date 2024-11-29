@@ -155,7 +155,7 @@ Disassembly of section .text:
      204:	06800593          	li	a1,104
      208:	6bc000ef          	jal	8c4 <display_score>
      20c:	7e442703          	lw	a4,2020(s0)
-     210:	00400793          	li	a5,4
+     210:	00100793          	li	a5,1
      214:	06e7dc63          	bge	a5,a4,28c <handle_interrupt+0xf4>
      218:	000027b7          	lui	a5,0x2
      21c:	e007a783          	lw	a5,-512(a5) # 1e00 <gameover>
@@ -184,7 +184,7 @@ Disassembly of section .text:
      278:	06300593          	li	a1,99
      27c:	648000ef          	jal	8c4 <display_score>
      280:	7e442703          	lw	a4,2020(s0)
-     284:	00400793          	li	a5,4
+     284:	00100793          	li	a5,1
      288:	f8e7c8e3          	blt	a5,a4,218 <handle_interrupt+0x80>
      28c:	00c12083          	lw	ra,12(sp)
      290:	00812403          	lw	s0,8(sp)
@@ -1807,27 +1807,27 @@ Disassembly of section .srodata:
 	...
 
 00001ee4 <food_offset>:
-    1ee4:	000a                	.insn	2, 0x000a
+    1ee4:	0006                	.insn	2, 0x0006
 	...
 
 00001ee8 <snake_offset>:
-    1ee8:	0008                	.insn	2, 0x0008
+    1ee8:	0004                	.insn	2, 0x0004
 	...
 
 00001eec <num_cols>:
-    1eec:	0008                	.insn	2, 0x0008
+    1eec:	0010                	.insn	2, 0x0010
 	...
 
 00001ef0 <num_rows>:
-    1ef0:	0006                	.insn	2, 0x0006
+    1ef0:	000c                	.insn	2, 0x000c
 	...
 
 00001ef4 <square_size>:
-    1ef4:	0028                	.insn	2, 0x0028
+    1ef4:	0014                	.insn	2, 0x0014
 	...
 
 00001ef8 <snakespeed>:
-    1ef8:	0002                	.insn	2, 0x0002
+    1ef8:	0005                	.insn	2, 0x0005
 	...
 
 Disassembly of section .rodata.str1.4:

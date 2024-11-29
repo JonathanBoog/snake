@@ -28,10 +28,10 @@ int random_number2 = 6;
 
 volatile int direction;
 volatile int new_direction;
-const int snakespeed = 2;
+const int snakespeed = 5;
 
 volatile char *VGA = (volatile char *)0x08000000; // Pekare till VGA-pixelbufferten
-const int square_size = 40;                       // Storleken på varje ruta i pixlar
+const int square_size = 20;                       // Storleken på varje ruta i pixlar
 const int num_rows = 240 / square_size;           // Antal rader
 const int num_cols = 320 / square_size;           // Antal kolumner
 
