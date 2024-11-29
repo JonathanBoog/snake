@@ -28,13 +28,14 @@ volatile int new_direction;
 const int snakespeed = 2;
 
 volatile char *VGA = (volatile char *)0x08000000; // Pekare till VGA-pixelbufferten
-const int square_size = 40;                       // Storleken på varje ruta i pixlar
+const int square_size = 20;                       // Storleken på varje ruta i pixlar
 const int num_rows = 240 / square_size;           // Antal rader
 const int num_cols = 320 / square_size;           // Antal kolumner
 
 int snake[192][2];    // Maximum length of the snake is 100 segments
 int snake_length; // Start with a snake of 3 segments
 const int snake_offset = 3;
+const int food_offset = 5;
 
 const int green1 = 0x4C;
 const int green2 = 0x9C;
@@ -244,7 +245,7 @@ void spawn_food(void){
   } while (collision); // Fortsätt om det finns en kollision
 
   // Rita maten på spelplanen
-  draw_box(food_x, food_y, food_color, 3, 3, 3, 3);
+  draw_box(food_x, food_y, food_color, food_offset, food_offset, food_offset, food_offset);
 }
 
 // CHECK FOOD
@@ -287,26 +288,27 @@ void update_snake(void){
   case 0:
     snake[0][1]++; // Höger
     right_offset1 = 0;
-    left_offset1 = snake_length-snake_offset;
+    left_offset1 = square_size-snake_offset;
     left_offset2 = 0;
     break;
   case 1:
     snake[0][0]++; // Upp
-    top_offset1 = 0;
-    down_offset1 = snake_length-snake_offset;
-    down_offset2 = 0;
+    down_offset1 = 0;
+    top_offset1 = square_size-snake_offset;
+    top_offset2 = 0;
+    
     break;
   case 2:
     snake[0][1]--; // Vänster
     left_offset1 = 0;
-    right_offset1 = snake_length-snake_offset;
+    right_offset1 = square_size-snake_offset;
     right_offset2 = 0;
     break;
   case 3:
     snake[0][0]--; // Ner
-    down_offset1 = 0;
-    top_offset1 = snake_length-snake_offset;
-    top_offset2 = 0;
+    top_offset1 = 0;
+    down_offset1 = square_size-snake_offset;
+    down_offset2 = 0;
     break;
   
   default:
@@ -350,7 +352,7 @@ void init_snake()
   }
   
   draw_board();
-  draw_box(snake[0][0], snake[0][1], head_color, 0, snake_offset, snake_offset, snake_offset);
+  draw_box(snake[0][0], snake[0][1], snake_color, 0, snake_offset, snake_offset, snake_offset);
   draw_box(snake[1][0], snake[1][1], snake_color, 0, snake_offset, 0, snake_offset);
   draw_box(snake[2][0], snake[2][1], snake_color, snake_offset, snake_offset, 0, snake_offset);
   spawn_food();
