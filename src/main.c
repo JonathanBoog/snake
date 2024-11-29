@@ -287,7 +287,7 @@ void update_snake(void){
   case 0:
     snake[0][1]++; // Höger
     right_offset1 = 0;
-    left_offset1 = snake_length-snake_offset
+    left_offset1 = snake_length-snake_offset;
     left_offset2 = 0;
     break;
   case 1:
