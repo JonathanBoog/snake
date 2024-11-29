@@ -34,6 +34,7 @@ extern int current_highscore;
 extern int highest_score;
 extern int gameover;
 
+extern int reset_button_pressed;
 extern int left_button_pressed;
 extern int right_button_pressed;
 

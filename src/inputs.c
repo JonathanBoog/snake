@@ -25,40 +25,45 @@ int get_btn2(void)
 
 void check_inputs(void){
   random_number1++;
+  random_number2++;
+  if (random_number1 >= 134)
+  {
+    random_number1 = 1;
     random_number2++;
-    if (random_number1 >= 134)
-    {
-      random_number1 = 1;
-      random_number2++;
-    }
-    if (random_number2 >= 278)
-    {
-      random_number2 = 1;
-    }
+  }
+  if (random_number2 >= 278)
+  {
+    random_number2 = 1;
+  }
 
-    if (get_btn_restart())
-    {
-      gameover = 0;
-      init_snake();
-    }
+  if (get_btn_restart() && !(reset_button_pressed))
+  {
+    reset_button_pressed = 1;
+    gameover = 0;
+    init_snake();
+  } else if (!(get_btn_restart()))
+  {
+    reset_button_pressed = 0;
+  }
+  
     
 
-    if (!get_btn1() && !(left_button_pressed))
-    {
-      left_button_pressed = 1;
-      new_direction = (direction + 3) % 4; // Vänster (rotera 90° moturs)
-    } else if (get_btn1())
-    {
-      left_button_pressed = 0;
-    }
+  if (!get_btn1() && !(left_button_pressed))
+  {
+    left_button_pressed = 1;
+    new_direction = (direction + 3) % 4; // Vänster (rotera 90° moturs)
+  } else if (get_btn1())
+  {
+    left_button_pressed = 0;
+  }
 
-    if (!get_btn2() && !(right_button_pressed))
-    {
-      right_button_pressed = 1;
-      new_direction = (direction + 1) % 4; // Höger (rotera 90° medurs)
+  if (!get_btn2() && !(right_button_pressed))
+  {
+    right_button_pressed = 1;
+    new_direction = (direction + 1) % 4; // Höger (rotera 90° medurs)
 
-    } else if (get_btn2())
-    {
-      right_button_pressed = 0;
-    }
+  } else if (get_btn2())
+  {
+    right_button_pressed = 0;
+  }
 }

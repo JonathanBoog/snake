@@ -52,6 +52,7 @@ int current_highscore;
 int highest_score = 0;
 int gameover = 0;
 
+int reset_button_pressed = 0;
 int left_button_pressed = 0;
 int right_button_pressed = 0;
 
