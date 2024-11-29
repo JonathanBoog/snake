@@ -28,20 +28,23 @@ volatile int new_direction;
 const int snakespeed = 2;
 
 volatile char *VGA = (volatile char *)0x08000000; // Pekare till VGA-pixelbufferten
-const int square_size = 20;                       // Storleken på varje ruta i pixlar
+const int square_size = 40;                       // Storleken på varje ruta i pixlar
 const int num_rows = 240 / square_size;           // Antal rader
 const int num_cols = 320 / square_size;           // Antal kolumner
 
 int snake[192][2];    // Maximum length of the snake is 100 segments
 int snake_length; // Start with a snake of 3 segments
-const int snake_offset = 3;
-const int food_offset = 5;
+const int snake_offset = square_size/5;
+const int food_offset = square_size/5+2;
 
 const int green1 = 0x4C;
 const int green2 = 0x9C;
 const int snake_color = 0xff;
-const int head_color = 0x45;
-const int food_color = 0xe0;
+const int *food_color = 0xe0;
+
+int *get_food_color(void){
+  return &food_color;
+}
 
 int food_x, food_y;
 int has_eaten;
@@ -175,13 +178,15 @@ void handle_interrupt(unsigned cause)
         direction = new_direction; // Uppdatera riktningen
       }
       
-      
-      
       update_snake();
     }
-
     // eventuellt ha en draw huvud här
   }
+}
+
+// get one of the green colors for the board, (the colors alternate every other)
+int get_correct_board_color(int row, int col){
+  return (row + col) % 2 == 0 ? green1 : green2;
 }
 
 //Draw a "chess"board
@@ -192,7 +197,7 @@ void draw_board(void)
   {
     for (unsigned int col = 0; col < num_cols; col++)
     {
-      color = (row + col) % 2 == 0 ? green1 : green2;
+      color = get_correct_board_color(row, col);
       draw_box(row, col, color, 0, 0, 0, 0);
     }
   }
@@ -243,32 +248,25 @@ void spawn_food(void){
         
         if (food_y == (num_cols-1)){
           food_x = (food_x + 1) % num_rows;
-          food_y = (food_y + 1) % num_cols;
-          print_dec(food_x);
-        print("-move X-");
-          
+          food_y = (food_y + 1) % num_cols;       
         } else{
         food_y = (food_y + 1) % num_cols;
-        print("-move Y-");
-          print_dec(food_y);
         }
         if (current_highscore == (num_cols*num_rows-3))
         {
           collision = 0;
           game_over();
         }
-        
-        
       }
     }
   } while (collision); // Fortsätt om det finns en kollision
 
   // Rita maten på spelplanen
   if (current_highscore != (num_cols*num_rows-3))
-    {
-      draw_box(food_x, food_y, food_color, food_offset, food_offset, food_offset, food_offset);
-    }
-  
+  {
+  draw_box(food_x, food_y, food_color, food_offset, food_offset, food_offset, food_offset);
+  }
+
 
 }
 
@@ -284,7 +282,9 @@ void check_food_collision(void){
 
 //UPDATE SNAKE
 void update_snake(void){
-  int color = (snake[snake_length - 1][0] + snake[snake_length - 1][1]) % 2 == 0 ? green1 : green2;
+  int tail_row = snake[snake_length - 1][0];
+  int tail_col = snake[snake_length - 1][1];
+
   int left_offset1 = snake_offset;
   int top_offset1 = snake_offset;
   int right_offset1 = snake_offset;
@@ -295,7 +295,7 @@ void update_snake(void){
   int down_offset2 = snake_offset;
   
   if (!has_eaten){
-    draw_box(snake[snake_length - 1][0], snake[snake_length - 1][1], color, 0, 0, 0, 0);
+    draw_box(tail_row, tail_col, get_correct_board_color(tail_row, tail_col), 0, 0, 0, 0);
   } else{
     has_eaten = 0;
   }
@@ -306,6 +306,7 @@ void update_snake(void){
     snake[i][0] = snake[i - 1][0]; // Copy row from the segment before
     snake[i][1] = snake[i - 1][1]; // Copy column from the segment before
   }
+  
   // Flytta ormens huvud
   switch (direction % 4)
   {
@@ -346,8 +347,10 @@ void update_snake(void){
     }
   check_food_collision();
 
+
   draw_box(snake[1][0], snake[1][1], snake_color, left_offset1, top_offset1, right_offset1, down_offset1);
   draw_box(snake[0][0], snake[0][1], snake_color, left_offset2, top_offset2, right_offset2, down_offset2);
+  
 }
 
 //END GAME ;(

@@ -4,8 +4,3 @@
 // create the starting board
 //load every variable etc..
 
-
-
-
-// when done..
-// save new highscore etc..
