@@ -28,12 +28,14 @@ volatile int new_direction;
 const int snakespeed = 2;
 
 volatile char *VGA = (volatile char *)0x08000000; // Pekare till VGA-pixelbufferten
-const int square_size = 40;                       // Storleken på varje ruta i pixlar
+const int square_size = 20;                       // Storleken på varje ruta i pixlar
 const int num_rows = 240 / square_size;           // Antal rader
 const int num_cols = 320 / square_size;           // Antal kolumner
 
 int snake[192][2];    // Maximum length of the snake is 100 segments
 int snake_length; // Start with a snake of 3 segments
+const int snake_offset = 3;
+const int food_offset = 5;
 
 const int green1 = 0x4C;
 const int green2 = 0x9C;
@@ -182,33 +184,24 @@ void handle_interrupt(unsigned cause)
   }
 }
 
+//Draw a "chess"board
 void draw_board(void)
 {
   int color;
-  // Rita ett schackbrädsliknande mönster med gröna och mörkgröna rutor
   for (unsigned int row = 0; row < num_rows; row++)
   {
     for (unsigned int col = 0; col < num_cols; col++)
     {
       color = (row + col) % 2 == 0 ? green1 : green2;
-      draw_box(row, col, color);
+      draw_box(row, col, color, 0, 0, 0, 0);
     }
   }
 }
-unsigned int pixel_index;
-void draw_box(int boxx, int boxy, int color){
-  for (unsigned int y = 0; y < square_size; y++){
-    for (unsigned int x = 0; x < square_size; x++){ // for (unsigned int x = timeoutcount/square_size; x < (timeoutcount+1)/square_size; x++)
-      // Beräkna pixelns position i VGA-bufferten
-      pixel_index = (boxx * square_size + y) * 320 + (boxy * square_size + x);
-      VGA[pixel_index] = color;
-    }
-  }
-}
-
-void draw_food_box(int boxx, int boxy, int color){
-  for (unsigned int y = 3; y < square_size-3; y++){
-    for (unsigned int x = 3; x < square_size-3; x++){ // for (unsigned int x = timeoutcount/square_size; x < (timeoutcount+1)/square_size; x++)
+// Draws a square, rows & columns, color, and indent from left, top, right and bottom.
+void draw_box(int boxx, int boxy, int color, int leftoffset, int topoffset, int rightoffset,int downoffset){
+  unsigned int pixel_index;
+  for (unsigned int y = topoffset; y < square_size-downoffset; y++){
+    for (unsigned int x = leftoffset; x < square_size-rightoffset; x++){ // for (unsigned int x = timeoutcount/square_size; x < (timeoutcount+1)/square_size; x++)
       // Beräkna pixelns position i VGA-bufferten
       pixel_index = (boxx * square_size + y) * 320 + (boxy * square_size + x);
       VGA[pixel_index] = color;
@@ -273,9 +266,10 @@ void spawn_food(void){
   // Rita maten på spelplanen
   if (current_highscore != (num_cols*num_rows-3))
     {
-      draw_food_box(food_x, food_y, food_color);
+      draw_box(food_x, food_y, food_color, food_offset, food_offset, food_offset, food_offset);
     }
   
+
 }
 
 // CHECK FOOD
@@ -291,10 +285,17 @@ void check_food_collision(void){
 //UPDATE SNAKE
 void update_snake(void){
   int color = (snake[snake_length - 1][0] + snake[snake_length - 1][1]) % 2 == 0 ? green1 : green2;
-  
+  int left_offset1 = snake_offset;
+  int top_offset1 = snake_offset;
+  int right_offset1 = snake_offset;
+  int down_offset1 = snake_offset;
+  int left_offset2 = snake_offset;
+  int top_offset2 = snake_offset;
+  int right_offset2 = snake_offset;
+  int down_offset2 = snake_offset;
   
   if (!has_eaten){
-    draw_box(snake[snake_length - 1][0], snake[snake_length - 1][1], color);
+    draw_box(snake[snake_length - 1][0], snake[snake_length - 1][1], color, 0, 0, 0, 0);
   } else{
     has_eaten = 0;
   }
@@ -310,15 +311,28 @@ void update_snake(void){
   {
   case 0:
     snake[0][1]++; // Höger
+    right_offset1 = 0;
+    left_offset1 = square_size-snake_offset;
+    left_offset2 = 0;
     break;
   case 1:
     snake[0][0]++; // Upp
+    down_offset1 = 0;
+    top_offset1 = square_size-snake_offset;
+    top_offset2 = 0;
+    
     break;
   case 2:
     snake[0][1]--; // Vänster
+    left_offset1 = 0;
+    right_offset1 = square_size-snake_offset;
+    right_offset2 = 0;
     break;
   case 3:
     snake[0][0]--; // Ner
+    top_offset1 = 0;
+    down_offset1 = square_size-snake_offset;
+    down_offset2 = 0;
     break;
   
   default:
@@ -331,11 +345,9 @@ void update_snake(void){
       return;
     }
   check_food_collision();
-   
-  
-  draw_box(snake[0][0], snake[0][1], head_color);
-  draw_box(snake[1][0], snake[1][1], snake_color);
-  
+
+  draw_box(snake[1][0], snake[1][1], snake_color, left_offset1, top_offset1, right_offset1, down_offset1);
+  draw_box(snake[0][0], snake[0][1], snake_color, left_offset2, top_offset2, right_offset2, down_offset2);
 }
 
 //END GAME ;(
@@ -365,9 +377,9 @@ void init_snake()
   }
   
   draw_board();
-  draw_box(snake[0][0], snake[0][1], head_color);
-  draw_box(snake[1][0], snake[1][1], snake_color);
-  draw_box(snake[2][0], snake[2][1], snake_color);
+  draw_box(snake[0][0], snake[0][1], snake_color, 0, snake_offset, snake_offset, snake_offset);
+  draw_box(snake[1][0], snake[1][1], snake_color, 0, snake_offset, 0, snake_offset);
+  draw_box(snake[2][0], snake[2][1], snake_color, snake_offset, snake_offset, 0, snake_offset);
   spawn_food();
 }
 
