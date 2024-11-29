@@ -286,22 +286,26 @@ void update_snake(void){
   {
   case 0:
     snake[0][1]++; // Höger
-    right_offset1 = snake_length-snake_offset;
+    right_offset1 = 0;
+    left_offset1 = snake_length-snake_offset
     left_offset2 = 0;
     break;
   case 1:
     snake[0][0]++; // Upp
-    top_offset1 = snake_length-snake_offset;
+    top_offset1 = 0;
+    down_offset1 = snake_length-snake_offset;
     down_offset2 = 0;
     break;
   case 2:
     snake[0][1]--; // Vänster
-    left_offset1 = snake_length-snake_offset;
+    left_offset1 = 0;
+    right_offset1 = snake_length-snake_offset;
     right_offset2 = 0;
     break;
   case 3:
     snake[0][0]--; // Ner
-    down_offset1 = snake_length-snake_offset;
+    down_offset1 = 0;
+    top_offset1 = snake_length-snake_offset;
     top_offset2 = 0;
     break;
   
