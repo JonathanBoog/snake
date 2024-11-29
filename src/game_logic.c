@@ -145,6 +145,7 @@ void update_snake(void){
 void game_over(void){
   
   gameover = 1;
+  draw_board();
   // Set highscore
   if (current_highscore > highest_score) {
     highest_score = current_highscore;
