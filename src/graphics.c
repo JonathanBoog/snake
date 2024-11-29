@@ -1,52 +1,93 @@
-//#include <include/graphics.h>
+#include "../include/main.h"
 
-/*
-int main(){
-    volatile char *VGA = (volatile char*) 0x08000000; // Create a pointer to the VGA pixel buffer. This is the "drawing" area.
-    for (int i = 0; i < 320*480; i++)
-        VGA[i] = i / 320; // Fill the drawing area with some values.
-    unsigned int y_ofs= 0;
-    volatile int *VGA_CTRL = (volatile int*) 0x04000100; // Create a pointer to the VGA DMA
-    while (1){
-        *(VGA_CTRL+1) = (unsigned int) (VGA+y_ofs*320); // Update the backbuffer to point to the VGA pixel buffer + 320*y_ofs
-        *(VGA_CTRL+0) = 0; // Write to the backbuffer control register to perform the swap.
-        y_ofs= (y_ofs+ 1) % 240; // Increase y_ofs by one and wrap around when reaching 240.
-        for (int i = 0; i < 1000000; i++)
-            asm volatile ("nop"); // Delay for some unit of time
+//Draw a "chess"board
+void draw_board(void)
+{
+  int color;
+  for (unsigned int row = 0; row < num_rows; row++)
+  {
+    for (unsigned int col = 0; col < num_cols; col++)
+    {
+      color = get_correct_board_color(row, col);
+      draw_box(row, col, color, 0, 0, 0, 0);
     }
-*/
-
-    /*
-    volatile char *VGA = (volatile char*) 0x08000000; // Pekare till VGA-pixelbufferten
-    unsigned int square_size = 20; // Storleken på varje ruta i pixlar
-    unsigned int num_rows = 240 / square_size; // Antal rader
-    unsigned int num_cols = 320 / square_size; // Antal kolumner
-
-    // Rita ett schackbrädsliknande mönster med gröna och mörkgröna rutor
-    for (unsigned int row = 0; row < num_rows; row++) {
-        for (unsigned int col = 0; col < num_cols; col++) {
-            // Välj färg baserat på rutans position
-            char color = (row + col) % 2 == 0 ? 0x0A : 0x02; // Grön och mörkgrön färg
-            for (unsigned int y = 0; y < square_size; y++) {
-                for (unsigned int x = 0; x < square_size; x++) {
-                    // Beräkna pixelns position i VGA-bufferten
-                    unsigned int pixel_index = (row * square_size + y) * 320 + (col * square_size + x);
-                    VGA[pixel_index] = color;
-                }
-            }
-        }
+  }
+}
+// Draws a square, rows & columns, color, and indent from left, top, right and bottom.
+void draw_box(int boxx, int boxy, int color, int leftoffset, int topoffset, int rightoffset,int downoffset){
+  unsigned int pixel_index;
+  for (unsigned int y = topoffset; y < square_size-downoffset; y++){
+    for (unsigned int x = leftoffset; x < square_size-rightoffset; x++){ // for (unsigned int x = timeoutcount/square_size; x < (timeoutcount+1)/square_size; x++)
+      // Beräkna pixelns position i VGA-bufferten
+      pixel_index = (boxx * square_size + y) * 320 + (boxy * square_size + x);
+      VGA[pixel_index] = color;
     }
+  }
+}
 
-    unsigned int y_ofs = 0;
-    volatile int *VGA_CTRL = (volatile int*) 0x04000100; // Pekare till VGA DMA
 
-    while (1) {
-        *(VGA_CTRL + 1) = (unsigned int)(VGA + y_ofs * 320); // Uppdatera backbuffer för att peka på VGA-pixelbufferten
-        *(VGA_CTRL + 0) = 0; // Utför en swap
-        y_ofs = (y_ofs + 1) % 240; // Öka y_ofs och wrappa runt vid 240
-        for (int i = 0; i < 1000000; i++)
-            asm volatile("nop"); // Fördröjning
-    }
 
-    
-}*/
+void set_displays(int display_number, int value)
+{
+  volatile int *display_adress = (volatile int *)(0x04000050 + display_number * 16);
+  switch (value)
+  {
+  case 0:
+    *display_adress = 0b11000000;
+    break;
+  case 1:
+    *display_adress = 0b11111001;
+    break;
+  case 2:
+    *display_adress = 0b10100100;
+    break;
+  case 3:
+    *display_adress = 0b10110000;
+    break;
+  case 4:
+    *display_adress = 0b10011001;
+    break;
+  case 5:
+    *display_adress = 0b10010010;
+    break;
+  case 6:
+    *display_adress = 0b10000010;
+    break;
+  case 7:
+    *display_adress = 0b11111000;
+    break;
+  case 8:
+    *display_adress = 0b10000000;
+    break;
+  case 9:
+    *display_adress = 0b10010000;
+    break;
+  //Bokstaven C
+  case 10: 
+    *display_adress = 0b11000110;
+    break;
+  //Bokstaven H
+  case 11: 
+    *display_adress = 0b10001001;
+    break;
+  default:
+    *display_adress = 0xff;
+  }
+}
+
+void display_score(int score, char letter){
+ 
+  
+  set_displays(0, score%10);
+  set_displays(1, (score/10)%10);
+  set_displays(2, score/100);
+  set_displays(3, 12);
+  set_displays(4, 12);
+
+  if (letter == 'c')
+  {
+    set_displays(5, 10);
+  } else if (letter == 'h'){
+    set_displays(5, 11);
+  }
+}
