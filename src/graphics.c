@@ -1,3 +1,10 @@
+/*
+Graphics file for the game, mostly VGA stuff and 7-segment display (output)
+
+Created by Jonathan Lavén & Julius Geiryd
+2024-12-08
+*/
+
 #include "../include/main.h"
 #include "../include/graphics.h"
 

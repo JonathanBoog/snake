@@ -1,3 +1,10 @@
+/*
+File for the logic behind the game. collision etc..
+
+Created by Jonathan Lavén & Julius Geiryd
+2024-12-08
+*/
+
 #include "../include/main.h"
 #include "../include/game_logic.h"
 

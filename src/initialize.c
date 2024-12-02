@@ -1,3 +1,9 @@
+/*
+file to initialize the game as a whole, more specifically the snake and interrupts
+
+Created by Jonathan Lavén & Julius Geiryd
+2024-12-08
+*/
 
 #include "../include/game_logic.h"
 #include "../include/main.h"
@@ -26,7 +32,7 @@ void init_snake(void)
   spawn_food();
 }
 
-/* Add your code here for initializing interrupts. */
+/* Code to initialize interupt and also GPIO pin. */
 void init(void)
 {
   volatile int *button_adress = (volatile int *)0x040000e0;

@@ -1,3 +1,10 @@
+/*
+Input file where program checks for updates in the connected inputs
+
+Created by Jonathan Lavén & Julius Geiryd
+2024-12-08
+*/
+
 #include "../include/inputs.h"
 #include "../include/main.h"
 #include "../include/initialize.h"

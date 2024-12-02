@@ -1,3 +1,10 @@
+/*
+The main file to run snake.
+
+Created by Jonathan Lavén & Julius Geiryd
+2024-12-08
+*/
+
 #include "../include/graphics.h"
 #include "../include/inputs.h"
 #include "../include/game_logic.h"
