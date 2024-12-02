@@ -12,13 +12,13 @@ extern volatile int direction;
 extern volatile int new_direction;
 extern const int snakespeed;
 
-extern volatile char *VGA; // Pekare till VGA-pixelbufferten
-extern const int square_size;                       // Storleken på varje ruta i pixlar
-extern const int num_rows;           // Antal rader
-extern const int num_cols;           // Antal kolumner
+extern volatile char *VGA; 
+extern const int square_size;  
+extern const int num_rows;         
+extern const int num_cols;         
 
-extern int snake[192][2];    // Maximum length of the snake is 100 segments
-extern int snake_length; // Start with a snake of 3 segments
+extern int snake[192][2]; 
+extern int snake_length; 
 extern const int snake_offset;
 extern const int food_offset;
 
@@ -30,7 +30,7 @@ extern const int food_color;
 
 extern int food_x, food_y;
 extern int has_eaten;
-extern int current_highscore;
+extern int current_score;
 extern int highest_score;
 extern int gameover;
 

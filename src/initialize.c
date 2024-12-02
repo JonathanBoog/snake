@@ -1,12 +1,14 @@
+
+#include "../include/game_logic.h"
 #include "../include/main.h"
 
-void init_snake()
+void init_snake(void)
 {
   snake_length = 3;
   direction = 0;
   new_direction = 0;
   has_eaten = 0;
-  current_highscore = 0;
+  current_score = 0;
 
   int start_row = num_rows / 2; // Middle row
   int start_col = num_cols / 2; // Middle column
@@ -25,7 +27,7 @@ void init_snake()
 }
 
 /* Add your code here for initializing interrupts. */
-void labinit(void)
+void init(void)
 {
   volatile int *button_adress = (volatile int *)0x040000e0;
   *(button_adress + 1) = 0x0; // Sets direction to input
