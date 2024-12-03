@@ -6,7 +6,6 @@ Created by Jonathan Lavén & Julius Geiryd
 */
 
 #include "../include/inputs.h"
-#include "../include/main.h"
 #include "../include/initialize.h"
 
 // Get the state of a switch

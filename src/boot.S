@@ -1,6 +1,6 @@
 .data
 .align 2
-welcome_msg: .asciz "================================================\n===== RISC-V Boot-Up Process Now Complete ======\n================================================\n"
+welcome_msg: .asciz "================================================\n===== RISC-V Booty-Up Process Now Complete =====\n================================================\n"
 	
 .section .text
 .align 2

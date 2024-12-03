@@ -5,21 +5,11 @@ Created by Jonathan Lavén & Julius Geiryd
 2024-12-08
 */
 
-#include "../include/main.h"
-#include "../include/graphics.h"
+#include "../include/initialize.h"
 
-// Draw a "chess" board on the screen by alternating colors
-void draw_board(void)
-{
-  int color;
-  for (unsigned int row = 0; row < num_rows; row++) // Loop through rows of the board
-  {
-    for (unsigned int col = 0; col < num_cols; col++) // Loop through columns of the board
-    {
-      color = get_correct_board_color(row, col);  // Get correct color for the current position (row, col) based on pattern
-      draw_box(row, col, color, 0, 0, 0, 0); // Draw a square
-    }
-  }
+// Function to get the appropriate board color for a cell (alternates based on position)
+int get_correct_board_color(int row, int col){
+  return (row + col) % 2 == 0 ? green1 : green2; // Alternate colors for a checkerboard pattern
 }
 
 // Draws a square at the given position (boxx, boxy) with a specified color and optional offsets
@@ -35,6 +25,21 @@ void draw_box(int boxx, int boxy, int color, int leftoffset, int topoffset, int 
     }
   }
 }
+
+// Draw a "chess" board on the screen by alternating colors
+void draw_board(void)
+{
+  int color;
+  for (unsigned int row = 0; row < num_rows; row++) // Loop through rows of the board
+  {
+    for (unsigned int col = 0; col < num_cols; col++) // Loop through columns of the board
+    {
+      color = get_correct_board_color(row, col);  // Get correct color for the current position (row, col) based on pattern
+      draw_box(row, col, color, 0, 0, 0, 0); // Draw a square
+    }
+  }
+}
+
 
 // Set the value to be displayed on a 7-segment display
 void set_displays(int display_number, int value)

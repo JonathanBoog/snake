@@ -5,8 +5,14 @@ Created by Jonathan Lavén & Julius Geiryd
 2024-12-08
 */
 
-#include "../include/main.h"
-#include "../include/game_logic.h"
+#include "../include/initialize.h"
+#include "../include/graphics.h"
+
+
+// Function to generate a random number within the range [0, max - 1]
+unsigned int random_range(int random_num, unsigned int max) {
+  return (433 * random_num + 12345) % max; // Linear congruential generator formula
+}
 
 // Function to check if the snake collides with walls or itself
 int check_collision(void){
@@ -23,18 +29,14 @@ int check_collision(void){
   return 0; // No collision
 }
 
-// Function to get the appropriate board color for a cell (alternates based on position)
-int get_correct_board_color(int row, int col){
-  return (row + col) % 2 == 0 ? green1 : green2; // Alternate colors for a checkerboard pattern
-}
-
-// Function to check if the snake eats food
-void check_food_collision(void){
-  if ((snake[0][0] == food_x) && (snake[0][1] == food_y)){
-    has_eaten = 1;  // Mark that the snake has eaten food
-    snake_length++; // Increase snake's length
-    current_score++; // Increase score
-    spawn_food();   // Spawn new food
+// Function to handle game-over scenarios
+void game_over(void){
+  
+  gameover = 1;       // Set the game-over flag
+  draw_board();       // Redraw the game board
+  // Update the high score if the current score exceeds it
+  if (current_score > highest_score) {
+    highest_score = current_score;
   }
 }
 
@@ -74,6 +76,16 @@ void spawn_food(void){
   if (current_score != (num_cols*num_rows-3))
   {
   draw_box(food_x, food_y, food_color, food_offset, food_offset, food_offset, food_offset);
+  }
+}
+
+// Function to check if the snake eats food
+void check_food_collision(void){
+  if ((snake[0][0] == food_x) && (snake[0][1] == food_y)){
+    has_eaten = 1;  // Mark that the snake has eaten food
+    snake_length++; // Increase snake's length
+    current_score++; // Increase score
+    spawn_food();   // Spawn new food
   }
 }
 
@@ -153,13 +165,3 @@ void update_snake(void){
   
 }
 
-// Function to handle game-over scenarios
-void game_over(void){
-  
-  gameover = 1;       // Set the game-over flag
-  draw_board();       // Redraw the game board
-  // Update the high score if the current score exceeds it
-  if (current_score > highest_score) {
-    highest_score = current_score;
-  }
-}
