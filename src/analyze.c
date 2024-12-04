@@ -3,10 +3,9 @@ extern void print(const char *);               // Print a string to console or l
 extern void print_dec(unsigned int);
 
 
-void clear_counters(){
+void clear_counters(void){
 
 // Clear the mcycle CSR by writing 0 to it
-asm volatile ("csrw mcycle, x0");
 
 asm volatile ("csrw mcycle, x0");
 asm volatile ("csrw minstret, x0");
@@ -20,8 +19,8 @@ asm volatile ("csrw mhpmcounter9, x0");
 
 }
 
-void read_counters(){
-    double cycle_count, instruction_count, mhpm3_count, mhpm4_count, mhpm5_count, mhpm6_count, mhpm7_count, mhpm8_count, mhpm9_count;
+void read_counters(void){
+    unsigned int cycle_count, instruction_count, mhpm3_count, mhpm4_count, mhpm5_count, mhpm6_count, mhpm7_count, mhpm8_count, mhpm9_count;
 
     asm("csrr %0, mcycle" : "=r"(cycle_count) );
     asm("csrr %0, minstret" : "=r"(instruction_count) );
