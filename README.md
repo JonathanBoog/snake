@@ -1,8 +1,6 @@
 # Snake Game 🐍
 
 
-# How to Run the Game
-
 ## 1. Download and Extract
 - Download the `.zip` file from the repository.
 - Extract it to a location of your choice:  
