@@ -14,8 +14,9 @@ Before running the game, ensure the following are installed and set up on your s
 - **dtekv-tools** 
 
 ## 3. Running the Game
-1. The extracted `.zip` should include a runnable file named `main.bin`.  
-2. To run the game:  
+1. Connect the board using the USB-Blaster and JTAG Software.
+2. The extracted `.zip` should include a runnable file named `main.bin`.  
+3. To run the game:  
    - Open a terminal and navigate to your `~/dtekv-tools` folder.
    - Execute the following command (replace `"your/path"` with the path to your `main.bin` file):  
      ```bash
